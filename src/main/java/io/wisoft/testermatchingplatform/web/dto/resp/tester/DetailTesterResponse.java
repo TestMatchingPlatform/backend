@@ -12,7 +12,8 @@ public class DetailTesterResponse {
     private String password;
     private String nickname;
     private String phoneNumber;
-    private String preferCategoryName;
+
+    private Long preferCategoryId;
     private String introMessage;
     private String introPictureRef;
 
@@ -21,7 +22,7 @@ public class DetailTesterResponse {
         this.password = tester.getPassword();
         this.nickname = tester.getNickname();
         this.phoneNumber = tester.getPhoneNumber();
-        this.preferCategoryName = tester.getPreferCategory().getName();
+        this.preferCategoryId = tester.getPreferCategory() == null ? null : tester.getPreferCategory().getId();
         this.introMessage = tester.getIntroMessage();
         this.introPictureRef = tester.getIntroPictureRef();
     }

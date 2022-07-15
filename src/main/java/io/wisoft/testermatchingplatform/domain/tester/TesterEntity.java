@@ -54,7 +54,8 @@ public class TesterEntity {
                 CategoryEntity.from(tester.getPreferCategory()),
                 tester.getIntroMessage(),
                 tester.getIntroPictureRef(),
-                GradeEntity.from(tester.getGrade())
+                GradeEntity.from(tester.getGrade()),
+                tester.getRegisterTime()
         );
     }
 
@@ -68,7 +69,8 @@ public class TesterEntity {
                 this.preferCategory == null ? null : this.preferCategory.toDomain(),
                 this.introMessage,
                 this.introPictureRef,
-                this.grade == null ? null : this.grade.toDomain()
+                this.grade == null ? null : this.grade.toDomain(),
+                this.registerTime
         );
     }
 
