@@ -1,0 +1,15 @@
+###
+GET http://localhost:8081/quests
+.Accept: application.json
+
+###
+GET http://localhost:8081/quests/category?category_id=1
+.Accept: application.json
+
+###
+GET http://localhost:8081/quests/questMaker?questMaker_id=1
+.Accept: application.json
+
+###
+GET http://localhost:8081/quests/quest?quest_id=1
+.Accept: application.json
