@@ -5,6 +5,7 @@ import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSigninR
 import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSignupRequest;
 import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerSignInResponse;
 import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerSignUpResponse;
+import io.wisoft.testermatchingplatform.web.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,8 @@ import javax.servlet.http.HttpSession;
 public class QuestMakerAuthController {
 
     private final QuestMakerAuthService questMakerAuthService;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 회원 가입
     @PostMapping("/signup")
@@ -45,14 +48,13 @@ public class QuestMakerAuthController {
     @PostMapping("/login")
     public ResponseEntity<QuestMakerSignInResponse> loginQuestMaker(
             @Validated
-            @RequestBody QuestMakerSigninRequest request,
-            HttpServletRequest httpServletRequest
+            @RequestBody QuestMakerSigninRequest request
     ){
+        String prefix = "Bearer ";
         QuestMakerSignInResponse response = this.questMakerAuthService.loginQuestMaker(request);
-        // 세션 등록
-        HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("questMaker",response.getId());
-        session.setMaxInactiveInterval(1800);
+        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(), response.getEmail());
+
+
         return ResponseEntity.ok().body(response);
     }
 

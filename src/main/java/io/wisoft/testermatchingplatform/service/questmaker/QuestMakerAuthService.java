@@ -43,6 +43,6 @@ public class QuestMakerAuthService {
         );
 
         questMaker.checkPassword(request.getPassword());
-        return QuestMakerSignInResponse.from(questMaker.getId(), questMaker.getNickname());
+        return QuestMakerSignInResponse.from(questMaker.getId(), questMaker.getEmail());
     }
 }

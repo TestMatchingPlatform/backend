@@ -6,14 +6,20 @@ import lombok.Getter;
 public class TesterSignInResponse {
     private Long id;
     private String email;
-    private String nickname;
 
     private String token;
 
-    public TesterSignInResponse(Long id, String email, String nickname) {
+
+    public TesterSignInResponse(Long id, String email) {
         this.id = id;
         this.email = email;
-        this.nickname = nickname;
+    }
+
+    public static TesterSignInResponse from(final Long id, final String email){
+        return new TesterSignInResponse(
+                id,
+                email
+        );
     }
 
     public void setToken(String token) {

@@ -44,13 +44,7 @@ public class TesterAuthService {
         }
 
         Tester testerDTO = testerRepository.findByEmail(request.getEmail()).orElseThrow();
-        TesterSignInResponse response = new TesterSignInResponse(
-                testerDTO.getId(),
-                testerDTO.getEmail(),
-                testerDTO.getNickname()
-        );
-
-        return response;
+        return TesterSignInResponse.from(testerDTO.getId(),testerDTO.getEmail());
     }
 
     @Transactional
@@ -86,10 +80,7 @@ public class TesterAuthService {
 
         }
 
-        TesterUpdateResponse response =
-                new TesterUpdateResponse(testerRepository.save(tester).getId());
-
-        return response;
+        return TesterUpdateResponse.from(testerRepository.save(tester).getId());
     }
 
 
@@ -106,9 +97,7 @@ public class TesterAuthService {
         );
 
         Apply save = applyRepository.save(apply);
-        QuestApplyResponse response = new QuestApplyResponse(save.getId());
-
-        return response;
+        return QuestApplyResponse.from(save.getId());
 
     }
 

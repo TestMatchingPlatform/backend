@@ -28,8 +28,7 @@ public class QuestInfoResponse {
     private String requireCondition;
     private String preferenceCondition;
     private List<TaskResponse> taskList;
-
-    public static QuestInfoResponse from(final Quest quest, final List<TaskResponse> taskList){
+    public static QuestInfoResponse from(final Quest quest, final List<TaskResponse> taskList) {
         return new QuestInfoResponse(
                 quest.getTitle(),
                 quest.getContent(),

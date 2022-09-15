@@ -43,7 +43,7 @@ public class TesterManageService {
         Tester tester = testerRepository.findById(testerId)
                 .orElseThrow(() -> new TesterNotFoundException("tester ID: " + testerId + "를 찾을 수 없습니다."));
 
-        return new DetailTesterResponse(tester);
+        return DetailTesterResponse.from(tester);
     }
 
     @Transactional
@@ -80,7 +80,7 @@ public class TesterManageService {
         tester = testerRepository
                 .save(tester);
 
-        return new SignUpResponse(tester.getId());
+        return SignUpResponse.from(tester.getId());
 
     }
 }

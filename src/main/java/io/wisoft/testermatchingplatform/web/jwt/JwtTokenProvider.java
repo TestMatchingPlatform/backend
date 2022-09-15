@@ -13,7 +13,7 @@ import java.util.Date;
 public class JwtTokenProvider {
 
 
-    public String createJwtToken(String email, String nickname) {
+    public String createJwtToken(Long id, String email) {
         Date now = new Date();
 
         return Jwts.builder()
@@ -21,8 +21,8 @@ public class JwtTokenProvider {
                 .setIssuer("gukjunLee")
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + Duration.ofMinutes(30).toMillis()))
+                .claim("id",id)
                 .claim("email", email)
-                .claim("nickname", nickname)
                 .signWith(SignatureAlgorithm.HS256, "secret")
                 .compact();
     }

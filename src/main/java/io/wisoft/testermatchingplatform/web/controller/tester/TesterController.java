@@ -53,7 +53,7 @@ public class TesterController {
     ) {
         String prefix = "Bearer ";
         TesterSignInResponse response = testerAuthService.loginTester(testerSignInRequest);
-        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getEmail(), response.getNickname());
+        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(), response.getEmail());
         response.setToken(jwtToken);
 
         return ResponseEntity
