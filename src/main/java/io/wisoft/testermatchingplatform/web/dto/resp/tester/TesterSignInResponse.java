@@ -5,20 +5,16 @@ import lombok.Getter;
 @Getter
 public class TesterSignInResponse {
     private Long id;
-    private String email;
-
     private String token;
 
 
-    public TesterSignInResponse(Long id, String email) {
+    public TesterSignInResponse(Long id) {
         this.id = id;
-        this.email = email;
     }
 
-    public static TesterSignInResponse from(final Long id, final String email){
+    public static TesterSignInResponse from(final Long id){
         return new TesterSignInResponse(
-                id,
-                email
+                id
         );
     }
 

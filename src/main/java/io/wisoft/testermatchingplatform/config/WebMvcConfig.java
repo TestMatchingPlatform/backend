@@ -1,7 +1,5 @@
 package io.wisoft.testermatchingplatform.config;
 
-import io.wisoft.testermatchingplatform.handler.interceptor.questmakerlogin.QuestMakerLoginArgumentResolver;
-import io.wisoft.testermatchingplatform.handler.interceptor.questmakerlogin.QuestMakerLoginCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -23,19 +21,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3_600);
     }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry){
-        registry.addInterceptor(new QuestMakerLoginCheckInterceptor())
-                .order(1)
-                .addPathPatterns("/questMakers");
-    }
-
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolverList){
-        resolverList.add(new QuestMakerLoginArgumentResolver());
-    }
-
-
 
 }

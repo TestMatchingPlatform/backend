@@ -44,7 +44,7 @@ public class TesterAuthService {
         }
 
         Tester testerDTO = testerRepository.findByEmail(request.getEmail()).orElseThrow();
-        return TesterSignInResponse.from(testerDTO.getId(),testerDTO.getEmail());
+        return TesterSignInResponse.from(testerDTO.getId());
     }
 
     @Transactional

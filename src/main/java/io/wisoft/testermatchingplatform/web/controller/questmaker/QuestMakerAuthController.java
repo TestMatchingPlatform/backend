@@ -1,11 +1,11 @@
 package io.wisoft.testermatchingplatform.web.controller.questmaker;
 
+import io.wisoft.testermatchingplatform.jwt.JwtTokenProvider;
 import io.wisoft.testermatchingplatform.service.questmaker.QuestMakerAuthService;
 import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSigninRequest;
 import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSignupRequest;
 import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerSignInResponse;
 import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerSignUpResponse;
-import io.wisoft.testermatchingplatform.web.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,8 +52,8 @@ public class QuestMakerAuthController {
     ){
         String prefix = "Bearer ";
         QuestMakerSignInResponse response = this.questMakerAuthService.loginQuestMaker(request);
-        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(), response.getEmail());
-
+        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(), "questMaker");
+        response.setToken(jwtToken);
 
         return ResponseEntity.ok().body(response);
     }

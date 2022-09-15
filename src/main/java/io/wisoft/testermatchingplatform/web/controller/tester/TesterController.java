@@ -2,6 +2,8 @@ package io.wisoft.testermatchingplatform.web.controller.tester;
 
 import io.wisoft.testermatchingplatform.handler.exception.tester.TesterAuthException;
 import io.wisoft.testermatchingplatform.handler.validator.image.ValidationSequence;
+import io.wisoft.testermatchingplatform.jwt.JwtStorage;
+import io.wisoft.testermatchingplatform.jwt.JwtTokenProvider;
 import io.wisoft.testermatchingplatform.service.tester.TesterManageService;
 import io.wisoft.testermatchingplatform.service.tester.TesterAuthService;
 import io.wisoft.testermatchingplatform.web.dto.req.tester.QuestApplyRequest;
@@ -9,7 +11,6 @@ import io.wisoft.testermatchingplatform.web.dto.req.tester.TesterSignInRequest;
 import io.wisoft.testermatchingplatform.web.dto.req.tester.TesterSignUpRequest;
 import io.wisoft.testermatchingplatform.web.dto.req.tester.TesterUpdateRequest;
 import io.wisoft.testermatchingplatform.web.dto.resp.tester.*;
-import io.wisoft.testermatchingplatform.web.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,8 @@ public class TesterController {
     final TesterAuthService testerAuthService;
     final TesterManageService testerManageService;
     final JwtTokenProvider jwtTokenProvider;
+
+    final JwtStorage jwtStorage;
 
 
     @PostMapping("/testers")
@@ -53,9 +56,8 @@ public class TesterController {
     ) {
         String prefix = "Bearer ";
         TesterSignInResponse response = testerAuthService.loginTester(testerSignInRequest);
-        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(), response.getEmail());
+        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(),"tester");
         response.setToken(jwtToken);
-
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(response);
@@ -63,12 +65,9 @@ public class TesterController {
 
     @PostMapping("/testers/{tester_id}/apply")
     public ResponseEntity<QuestApplyResponse> applyQuest(
-            HttpServletRequest sessionRequest,
             @PathVariable("tester_id") Long testerId,
             @ModelAttribute QuestApplyRequest questApplyRequest
     ) {
-        Long currentTesterId = (Long) sessionRequest.getSession().getAttribute("currentTester");
-        TesterLoginCheck(testerId, currentTesterId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(testerAuthService.applyQuest(questApplyRequest, testerId));
@@ -77,11 +76,8 @@ public class TesterController {
 
     @GetMapping("/testers/{tester_id}/apply")
     public ResponseEntity<Page<QuestApplyListResponse>> showApplyQuests(
-            HttpServletRequest sessionRequest,
-            @PathVariable("tester_id") Long testerId
+             @PathVariable("tester_id") Long testerId
     ) {
-        Long currentTesterId = (Long) sessionRequest.getSession().getAttribute("currentTester");
-        TesterLoginCheck(testerId, currentTesterId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(testerAuthService.findApplyList(testerId));
@@ -95,25 +91,12 @@ public class TesterController {
 
     @PatchMapping("/testers/{tester_id}")
     public ResponseEntity<TesterUpdateResponse> updateTester(
-            HttpServletRequest sessionRequest,
-            @PathVariable("tester_id") Long testerId,
+             @PathVariable("tester_id") Long testerId,
             @ModelAttribute TesterUpdateRequest testerUpdateRequest
     ) {
-        Long currentTesterId = (Long) sessionRequest.getSession().getAttribute("currentTester");
-        TesterLoginCheck(currentTesterId, testerId);
-        return ResponseEntity
+         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(testerAuthService.updateTester(testerUpdateRequest, testerId));
-    }
-
-
-    private void TesterLoginCheck(Long currentTesterId, Long testerId) {
-        if (currentTesterId == null) {
-            throw new TesterAuthException("로그인이 되어있지 않은 상태임");
-        }
-        if (!currentTesterId.equals(testerId)) {
-            throw new TesterAuthException("로그인된 사용자와는 다른 사용자 업데이트를 하려고 함.");
-        }
     }
 
 

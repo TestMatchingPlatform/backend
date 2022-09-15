@@ -8,19 +8,17 @@ import lombok.Getter;
 public class QuestMakerSignInResponse {
 
     private Long id;
-    private String email;
     private String token;
 
-    private QuestMakerSignInResponse(final Long id,final String email){
+    private QuestMakerSignInResponse(final Long id){
         this.id = id;
-        this.email = email;
     }
 
-    public static QuestMakerSignInResponse from(final Long id, final String email) {
-        return new QuestMakerSignInResponse(id, email);
+    public static QuestMakerSignInResponse from(final Long id) {
+        return new QuestMakerSignInResponse(id);
     }
 
-    private void setToken(String token){
+    public void setToken(String token){
         this.token = token;
     }
 
