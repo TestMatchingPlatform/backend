@@ -1,6 +1,7 @@
 package io.wisoft.testermatchingplatform.web.controller.questmaker;
 
-import io.wisoft.testermatchingplatform.jwt.JwtTokenProvider;
+import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerTokenResponse;
+import io.wisoft.testermatchingplatform.web.jwt.JwtTokenProvider;
 import io.wisoft.testermatchingplatform.service.questmaker.QuestMakerAuthService;
 import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSigninRequest;
 import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSignupRequest;
@@ -13,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -34,28 +36,35 @@ public class QuestMakerAuthController {
 
     // 회원 탈퇴
     @DeleteMapping("/remove")
-    public ResponseEntity deleteQuestMaker(HttpServletRequest httpServletRequest){
-        // 사용자 삭제
-        HttpSession session = httpServletRequest.getSession(false);
-        Long id = (Long) session.getAttribute("questMaker");
-        this.questMakerAuthService.deleteQuestMaker(id);
-        // 세션 삭제
-        session.invalidate();
+    public ResponseEntity deleteQuestMaker(){
+        // 사용자 삭제 ->  구현 예정
+
         return ResponseEntity.noContent().build();
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<QuestMakerSignInResponse> loginQuestMaker(
+    public ResponseEntity<QuestMakerTokenResponse> loginQuestMaker(
             @Validated
             @RequestBody QuestMakerSigninRequest request
     ){
         String prefix = "Bearer ";
         QuestMakerSignInResponse response = this.questMakerAuthService.loginQuestMaker(request);
-        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(), "questMaker");
-        response.setToken(jwtToken);
 
-        return ResponseEntity.ok().body(response);
+        // db,client -> refresh token
+        String refreshToken = prefix + jwtTokenProvider.createJwtRefreshToken(response.getId());
+        questMakerAuthService.setRefreshToken(response.getId(), refreshToken);
+
+        // client -> access token
+        String accessToken = prefix + jwtTokenProvider.createJwtAccessToken(
+                response.getId(),"questMaker");
+
+        QuestMakerTokenResponse questMakerTokenResponse = new QuestMakerTokenResponse();
+        questMakerTokenResponse.setId(response.getId());
+        questMakerTokenResponse.setAccessToken(accessToken);
+        questMakerTokenResponse.setRefreshToken(refreshToken);
+
+        return ResponseEntity.ok().body(questMakerTokenResponse);
     }
 
     // 로그아웃
@@ -68,5 +77,4 @@ public class QuestMakerAuthController {
         session.invalidate();
         return ResponseEntity.ok().build();
     }
-
 }

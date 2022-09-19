@@ -1,4 +1,4 @@
-package io.wisoft.testermatchingplatform.jwt;
+package io.wisoft.testermatchingplatform.web.jwt;
 
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
@@ -11,19 +11,33 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private static final String secretKey = "kukjunfighting";
-    public String createJwtToken(Long id, String roles) {
+    public String createJwtAccessToken(Long id, String roles) {
         Date now = new Date();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("gukjunLee")
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + Duration.ofMinutes(30).toMillis()))
+                .setExpiration(new Date(now.getTime() + Duration.ofMinutes(10).toMillis()))
                 .setSubject(String.valueOf(id))
                 .claim("roles", roles)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
+
+    public String createJwtRefreshToken(Long id) {
+        Date now = new Date();
+
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setIssuer("gukjunLee")
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + Duration.ofMinutes(60).toMillis()))
+                .setSubject(String.valueOf(id))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
 
     // 토큰 값 가져오기
     public Claims getTokenData(String token) {

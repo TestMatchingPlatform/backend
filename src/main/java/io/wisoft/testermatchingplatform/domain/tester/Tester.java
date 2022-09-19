@@ -28,6 +28,8 @@ public class Tester extends BaseTime {
 
     private String phoneNumber;
 
+    private String refreshToken;
+
     @JoinColumn(name = "PREFER_CATEGORY_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Category preferCategory;

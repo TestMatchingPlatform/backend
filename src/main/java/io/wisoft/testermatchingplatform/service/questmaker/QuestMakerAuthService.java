@@ -45,4 +45,9 @@ public class QuestMakerAuthService {
         questMaker.checkPassword(request.getPassword());
         return QuestMakerSignInResponse.from(questMaker.getId());
     }
+
+    @Transactional
+    public void setRefreshToken(Long id, String token){
+        questMakerRepository.setRefreshToken(id,token);
+    }
 }

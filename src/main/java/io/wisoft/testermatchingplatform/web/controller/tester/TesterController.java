@@ -1,9 +1,7 @@
 package io.wisoft.testermatchingplatform.web.controller.tester;
 
-import io.wisoft.testermatchingplatform.handler.exception.tester.TesterAuthException;
 import io.wisoft.testermatchingplatform.handler.validator.image.ValidationSequence;
-import io.wisoft.testermatchingplatform.jwt.JwtStorage;
-import io.wisoft.testermatchingplatform.jwt.JwtTokenProvider;
+import io.wisoft.testermatchingplatform.web.jwt.JwtTokenProvider;
 import io.wisoft.testermatchingplatform.service.tester.TesterManageService;
 import io.wisoft.testermatchingplatform.service.tester.TesterAuthService;
 import io.wisoft.testermatchingplatform.web.dto.req.tester.QuestApplyRequest;
@@ -18,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -28,10 +25,6 @@ public class TesterController {
     final TesterAuthService testerAuthService;
     final TesterManageService testerManageService;
     final JwtTokenProvider jwtTokenProvider;
-
-    final JwtStorage jwtStorage;
-
-
     @PostMapping("/testers")
     public ResponseEntity<SignUpResponse> registerTester(
             @ModelAttribute
@@ -56,8 +49,8 @@ public class TesterController {
     ) {
         String prefix = "Bearer ";
         TesterSignInResponse response = testerAuthService.loginTester(testerSignInRequest);
-        String jwtToken = prefix + jwtTokenProvider.createJwtToken(response.getId(),"tester");
-        response.setToken(jwtToken);
+//        String jwtToken = prefix + jwtTokenProvider.createJwtAccessToken(response.getId(),"tester");
+//        response.setAccessToken(jwtToken);
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(response);

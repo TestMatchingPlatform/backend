@@ -21,6 +21,8 @@ public class QuestMaker extends BaseTime {
     private String nickname;
     private String phoneNumber;
 
+    private String refreshToken;
+
     public QuestMaker(String email, String password, String nickname, String phoneNumber) {
         this.email = email;
         this.password = password;

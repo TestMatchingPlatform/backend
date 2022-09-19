@@ -1,6 +1,5 @@
 package io.wisoft.testermatchingplatform.web.controller.questmaker;
 
-import io.wisoft.testermatchingplatform.jwt.JwtStorage;
 import io.wisoft.testermatchingplatform.service.questmaker.QuestMakerManageService;
 import io.wisoft.testermatchingplatform.web.dto.req.apply.ApproveRequest;
 import io.wisoft.testermatchingplatform.web.dto.req.quest.QuestRegistRequest;
@@ -15,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -25,11 +22,10 @@ public class QuestMakerManageController {
 
     private final QuestMakerManageService questMakerManageService;
 
-    private final JwtStorage jwtStorage;
 
     @PostMapping("/quests")
     public ResponseEntity<QuestIdResponse> registQuest(@Validated @RequestBody final QuestRegistRequest request) {
-        QuestIdResponse response = questMakerManageService.registQuest(request, Long.parseLong(jwtStorage.getToken().getSubject()));
+        QuestIdResponse response = questMakerManageService.registQuest(request,1L);
         return ResponseEntity.ok().body(response);
     }
 
@@ -41,7 +37,7 @@ public class QuestMakerManageController {
 
     @PatchMapping("/quests")
     public ResponseEntity<QuestIdResponse> updateQuest(@RequestParam final Long quest_id,@Validated @RequestBody final QuestRegistRequest request) {
-        QuestIdResponse response = questMakerManageService.updateQuest(Long.parseLong(jwtStorage.getToken().getSubject()), quest_id, request);
+        QuestIdResponse response = questMakerManageService.updateQuest(1L, quest_id, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
