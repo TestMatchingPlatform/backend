@@ -8,6 +8,7 @@ import io.wisoft.testermatchingplatform.web.dto.req.questmaker.QuestMakerSignupR
 import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerSignInResponse;
 import io.wisoft.testermatchingplatform.web.dto.resp.questmaker.QuestMakerSignUpResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +45,7 @@ public class QuestMakerAuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<QuestMakerTokenResponse> loginQuestMaker(
+    public ResponseEntity<QuestMakerSignInResponse> loginQuestMaker(
             @Validated
             @RequestBody QuestMakerSigninRequest request
     ){
@@ -59,12 +60,11 @@ public class QuestMakerAuthController {
         String accessToken = prefix + jwtTokenProvider.createJwtAccessToken(
                 response.getId(),"questMaker");
 
-        QuestMakerTokenResponse questMakerTokenResponse = new QuestMakerTokenResponse();
-        questMakerTokenResponse.setId(response.getId());
-        questMakerTokenResponse.setAccessToken(accessToken);
-        questMakerTokenResponse.setRefreshToken(refreshToken);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("ACCESSS_TOKEN",accessToken);
+        httpHeaders.set("REFRESH_TOKEN",refreshToken);
 
-        return ResponseEntity.ok().body(questMakerTokenResponse);
+        return ResponseEntity.ok().headers(httpHeaders).body(response);
     }
 
     // 로그아웃
