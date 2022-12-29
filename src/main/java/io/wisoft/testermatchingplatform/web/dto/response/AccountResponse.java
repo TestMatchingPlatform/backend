@@ -1,10 +1,24 @@
 package io.wisoft.testermatchingplatform.web.dto.response;
 
+import io.wisoft.testermatchingplatform.domain.Maker;
+import io.wisoft.testermatchingplatform.domain.Tester;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@Setter
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountResponse {
-    private String account;
+
+    private final String account;
+
+    public static AccountResponse fromTester(Tester tester) {
+        AccountResponse response = new AccountResponse(tester.getAccount());
+        return response;
+    }
+
+    public static AccountResponse fromMaker(Maker maker) {
+        AccountResponse response = new AccountResponse(maker.getAccount());
+        return response;
+    }
 }

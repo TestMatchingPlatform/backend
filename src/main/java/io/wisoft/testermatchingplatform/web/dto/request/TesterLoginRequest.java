@@ -4,20 +4,24 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class MakerLoginRequest {
+public class TesterLoginRequest {
 
     private final String email;
     private final String password;
 
-    public static MakerLoginRequest newInstance(
+    public static TesterLoginRequest newInstance(
             final String email,
             final String password
     ) {
-        MakerLoginRequest request = new MakerLoginRequest(
-                email, password
+        TesterLoginRequest request = new TesterLoginRequest(
+                email,
+                password
         );
         return request;
     }
+
 }
