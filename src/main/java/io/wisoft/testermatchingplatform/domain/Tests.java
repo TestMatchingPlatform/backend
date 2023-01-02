@@ -26,8 +26,8 @@ public class Tests extends BaseEntity {
     private String title;
     private String content;
     private String imageURL;
-    private long point;
-    private int limitApply;
+    private long reward;
+    private int limitPerformer;
 
     @Enumerated(EnumType.STRING)
     private TestStatus status;
@@ -75,18 +75,19 @@ public class Tests extends BaseEntity {
         if (limitApply <= 0) {
             throw new ApplyException("제한인원은 0보다 커야 합니다.");
         }
+
         Tests test = new Tests();
         test.title = title;
         test.content = content;
         test.imageURL = imageURL;
-        test.point = point;
+        test.reward = point;
         test.testDate = TestDate.newInstance(
                 recruitmentTimeStart,
                 recruitmentTimeEnd,
                 durationTimeStart,
                 durationTimeEnd
         );
-        test.limitApply = limitApply;
+        test.limitPerformer = limitApply;
         test.maker = maker;
         maker.usePoint(point * limitApply);
         test.createEntity();
@@ -97,32 +98,65 @@ public class Tests extends BaseEntity {
      * 비지니스 메서드
      */
 
-    public void updateTest(
+    public void updateIncludeImageTest(
             final String title,
             final String content,
             final String imageURL,
-            final long point,
-            final int limitApply,
+            final long reward,
+            final int limitPerformer,
             final LocalDate recruitmentTimeStart,
             final LocalDate recruitmentTimeEnd,
             final LocalDate durationTimeStart,
             final LocalDate durationTimeEnd
     ) {
-        if (limitApply <= 0) {
+        if (limitPerformer <= 0) {
             throw new ApplyException("제한인원은 0보다 커야 합니다.");
         }
-        this.maker.updatePoint(point * limitApply - this.point * this.limitApply);
+        this.maker.updatePoint(reward * limitPerformer - this.reward * this.limitPerformer);
         this.title = title;
         this.content = content;
         this.imageURL = imageURL;
-        this.point = point;
+        this.reward = reward;
         this.testDate = TestDate.newInstance(
                 recruitmentTimeStart,
                 recruitmentTimeEnd,
                 durationTimeStart,
                 durationTimeEnd
         );
-        this.limitApply = limitApply;
+        this.limitPerformer = limitPerformer;
         updateEntity();
     }
+
+    public void updateExceptImageTest(
+            final String title,
+            final String content,
+            final long reward,
+            final int limitPerformer,
+            final LocalDate recruitmentTimeStart,
+            final LocalDate recruitmentTimeEnd,
+            final LocalDate durationTimeStart,
+            final LocalDate durationTimeEnd
+    ) {
+        if (limitPerformer <= 0) {
+            throw new ApplyException("제한인원은 0보다 커야 합니다.");
+        }
+        this.maker.updatePoint(reward * limitPerformer - this.reward * this.limitPerformer);
+        this.title = title;
+        this.content = content;
+        this.reward = reward;
+        this.testDate = TestDate.newInstance(
+                recruitmentTimeStart,
+                recruitmentTimeEnd,
+                durationTimeStart,
+                durationTimeEnd
+        );
+        this.limitPerformer = limitPerformer;
+        updateEntity();
+    }
+
+    public long remainApplyTime() {
+        long remainTime = testDate.remainApplyTime();
+        return remainTime;
+    }
+
 }
