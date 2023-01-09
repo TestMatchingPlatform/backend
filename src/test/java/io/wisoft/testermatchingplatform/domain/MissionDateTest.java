@@ -1,6 +1,7 @@
 package io.wisoft.testermatchingplatform.domain;
 
-import io.wisoft.testermatchingplatform.handler.exception.MissionDateSequenceException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.MissionDateCurrentTimeBeforeApplyException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.MissionDateMisMatchException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +9,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TestDateMission {
+class MissionDateTest {
 
 
     @Test
@@ -39,7 +40,7 @@ class TestDateMission {
         LocalDate durationTimeStart = LocalDate.now().plusDays(5L);
         LocalDate durationTimeEnd = LocalDate.now().plusDays(3L);
         assertThrows(
-                MissionDateSequenceException.class,
+                MissionDateMisMatchException.class,
                 () -> MissionDate.newInstance(
                         recruitmentTimeStart,
                         recruitmentTimeEnd,
@@ -58,7 +59,7 @@ class TestDateMission {
         LocalDate durationTimeEnd = LocalDate.now().plusDays(30L);
 
         assertThrows(
-                MissionDateSequenceException.class,
+                MissionDateCurrentTimeBeforeApplyException.class,
                 () -> MissionDate.newInstance(
                         recruitmentTimeStart,
                         recruitmentTimeEnd,
@@ -72,7 +73,7 @@ class TestDateMission {
     @DisplayName("테스트의 남은 기간 표기 테스트")
     public void remainTimeTest() throws Exception {
         //given
-        LocalDate recruitmentTimeStart = LocalDate.now().plusDays(5L);
+        LocalDate recruitmentTimeStart = LocalDate.now();
         LocalDate recruitmentTimeEnd = LocalDate.now().plusDays(10L);
         LocalDate durationTimeStart = LocalDate.now().plusDays(20L);
         LocalDate durationTimeEnd = LocalDate.now().plusDays(30L);
@@ -89,7 +90,7 @@ class TestDateMission {
         assertEquals(durationTimeEnd, missionDate.getDurationTimeEnd());
 
         //when
-        long remainDay = missionDate.remainApplyTime();
+        long remainDay = missionDate.remainApplyTime(LocalDate.now());
         long expectedDay = recruitmentTimeEnd.toEpochDay() - LocalDate.now().toEpochDay();
         System.out.println("expectedDay = " + expectedDay);
         //then

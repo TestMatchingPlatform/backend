@@ -1,41 +1,30 @@
 package io.wisoft.testermatchingplatform.repository;
 
 import io.wisoft.testermatchingplatform.domain.Tester;
+import io.wisoft.testermatchingplatform.handler.exception.service.TesterNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@RequiredArgsConstructor
-public class TesterRepository {
-    private final EntityManager em;
+public interface TesterRepository extends JpaRepository<Tester, UUID> {
+    @Override
+    Optional<Tester> findById(UUID uuid);
 
-    public UUID save(Tester tester) {
-        em.persist(tester);
-        return tester.getId();
-    }
+    @Query("select t from Tester t where t.email=:email")
+    Optional<Tester> findByEmail(@Param("email") String email);
 
-    public Tester findById(UUID id) {
-        return em.find(Tester.class, id);
-    }
+    @Override
+    List<Tester> findAll();
 
-    public Tester findByEmail(String email) throws NoResultException, NonUniqueResultException {
-        Tester tester = em.createQuery("select t from Tester t where t.email=:email", Tester.class)
-                .setParameter("email", email)
-                .getSingleResult();
-        return tester;
-    }
-
-    public List<Tester> findAll() {
-        return em.createQuery(
-                "select t from Tester t",
-                Tester.class
-        ).getResultList();
-    }
+    @Override
+    long count();
 
 }

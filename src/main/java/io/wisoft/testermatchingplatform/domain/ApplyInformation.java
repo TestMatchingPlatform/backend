@@ -1,8 +1,8 @@
 package io.wisoft.testermatchingplatform.domain;
 
-import io.wisoft.testermatchingplatform.handler.exception.ApproveException;
-import io.wisoft.testermatchingplatform.handler.exception.ExecutionException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.MissionStatusMismatchException;
 import lombok.Getter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,7 +12,8 @@ import java.util.UUID;
 @Getter
 public class ApplyInformation extends BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name="uuid2", strategy = "uuid2")
     @Column(name = "apply_information_id")
     private UUID id;
 
@@ -51,11 +52,16 @@ public class ApplyInformation extends BaseEntity {
         tester.getApplyInformationList().add(this);
     }
 
-    public void setTesterReview(TesterReview testerReview) {
+    public void disconnect() {
+        disconnectTester();
+        disconnectMission();
+    }
+
+    public void connectTesterReview(TesterReview testerReview) {
         this.testerReview = testerReview;
     }
 
-    public void setMakerReview(MakerReview makerReview) {
+    public void connectMakerReview(MakerReview makerReview) {
         this.makerReview = makerReview;
     }
 
@@ -83,76 +89,57 @@ public class ApplyInformation extends BaseEntity {
         return applyInformation;
     }
 
+
     /**
      * 비지니스 메서드
      */
     public void applyApprove() {
-        MissionStatus missionStatus = this.mission.getStatus();
-        if (missionStatus == MissionStatus.APPROVE) {
-            this.approveTime = LocalDateTime.now();
-            this.status = ApplyInformationStatus.APPROVE_SUCCESS;
-            updateEntity();
-        } else {
-            throw new ApproveException("선정 기간이 아닙니다.");
-        }
+        isMissionStatsMatch(MissionStatus.APPROVE);
+        this.approveTime = LocalDateTime.now();
+        this.status = ApplyInformationStatus.APPROVE_SUCCESS;
+        updateEntity();
     }
 
-    public void disconnect() {
-        disconnectTester();
-        disconnectMission();
-    }
 
     public void applyReject() {
-        MissionStatus missionStatus = this.mission.getStatus();
-        if (missionStatus == MissionStatus.APPROVE) {
-            this.approveTime = LocalDateTime.now();
-            this.status = ApplyInformationStatus.APPROVE_FAIL;
-            mission.getMaker().refundPoint(mission.getReward());
-            updateEntity();
-        } else {
-            throw new ApproveException("선정기간이 아닙니다.");
-        }
+        isMissionStatsMatch(MissionStatus.APPROVE);
+        this.approveTime = LocalDateTime.now();
+        this.status = ApplyInformationStatus.APPROVE_FAIL;
+        mission.getMaker().refundPoint(mission.getReward());
+        updateEntity();
     }
-
-    private void refundPoint() {
-
-    }
-
-
 
 
     public void executeApprove() {
-        MissionStatus missionStatus = this.mission.getStatus();
-        if (missionStatus == MissionStatus.PROGRESS) {
-            this.executionTime = LocalDateTime.now();
-            this.status = ApplyInformationStatus.EXECUTE_SUCCESS;
-            tester.rewardPoint(mission.getReward());
-            updateEntity();
-        } else {
-            throw new ExecutionException("수행 기간이 아닙니다.");
-        }
+        isMissionStatsMatch(MissionStatus.PROGRESS);
+        this.executionTime = LocalDateTime.now();
+        this.status = ApplyInformationStatus.EXECUTE_SUCCESS;
+        tester.rewardPoint(mission.getReward());
+        updateEntity();
     }
 
     public void executeReject() {
-        MissionStatus missionStatus = this.mission.getStatus();
-        if (missionStatus == MissionStatus.PROGRESS) {
-            this.executionTime = LocalDateTime.now();
-            this.status = ApplyInformationStatus.EXECUTE_FAIL;
-            mission.getMaker().refundPoint(mission.getReward());
-            updateEntity();
-        } else {
-            throw new ExecutionException("수행 기간, 완료 기간이 아닙니다.");
-        }
+        isMissionStatsMatch(MissionStatus.PROGRESS);
+        this.executionTime = LocalDateTime.now();
+        this.status = ApplyInformationStatus.EXECUTE_FAIL;
+        mission.getMaker().refundPoint(mission.getReward());
+        updateEntity();
     }
 
-    private MissionDate currentTestDate() {
-        return this.mission.getMissionDate();
-    }
-
-    public MissionStatus currentTestStatus() {
+    public MissionStatus currentMissionStatus() {
         return this.mission.getStatus();
     }
 
-
-
+    /**
+     * 예외 처리 메서드
+     */
+    public void isMissionStatsMatch(MissionStatus expectedMissionStatus) {
+        MissionStatus actualMissionStatus = currentMissionStatus();
+        if (expectedMissionStatus != actualMissionStatus) {
+            throw new MissionStatusMismatchException(
+                    "expected: " + expectedMissionStatus.toString() +
+                            "\n actual: " + actualMissionStatus.toString()
+            );
+        }
+    }
 }

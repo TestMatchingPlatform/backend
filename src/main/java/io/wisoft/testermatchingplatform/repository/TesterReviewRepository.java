@@ -1,32 +1,21 @@
 package io.wisoft.testermatchingplatform.repository;
 
 import io.wisoft.testermatchingplatform.domain.TesterReview;
+import io.wisoft.testermatchingplatform.handler.exception.service.TesterReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@RequiredArgsConstructor
-public class TesterReviewRepository{
+public interface TesterReviewRepository extends JpaRepository<TesterReview, UUID> {
+    @Override
+    Optional<TesterReview> findById(UUID uuid);
 
-    private final EntityManager em;
-
-    public UUID save(TesterReview testerReview) {
-        em.persist(testerReview);
-        return testerReview.getId();
-    }
-
-    public TesterReview findOne(UUID id) {
-        return em.find(TesterReview.class, id);
-    }
-
-    public List<TesterReview> findAll(UUID id) {
-        return em.createQuery(
-                "select tr from TesterReview tr",
-                TesterReview.class
-        ).getResultList();
-    }
+    @Override
+    List<TesterReview> findAll();
 }

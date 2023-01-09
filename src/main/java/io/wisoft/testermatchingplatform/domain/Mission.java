@@ -1,9 +1,10 @@
 package io.wisoft.testermatchingplatform.domain;
 
-import io.wisoft.testermatchingplatform.handler.exception.ApplyException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.NotNaturalNumberException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -19,11 +20,13 @@ import java.util.UUID;
 public class Mission extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name="uuid2", strategy = "uuid2")
     @Column(name = "mission_id")
     private UUID id;
 
     private String title;
+    @Column(columnDefinition = "text")
     private String content;
     private String imageURL;
     private long reward;
@@ -69,33 +72,31 @@ public class Mission extends BaseEntity {
             final String content,
             final String imageURL,
             final long point,
-            final int limitApply,
+            final int limitPerformer,
             final Maker maker,
             final LocalDate recruitmentTimeStart,
             final LocalDate recruitmentTimeEnd,
             final LocalDate durationTimeStart,
             final LocalDate durationTimeEnd
     ) {
-        if (limitApply <= 0) {
-            throw new ApplyException("제한인원은 0보다 커야 합니다.");
-        }
-
-        Mission test = new Mission();
-        test.title = title;
-        test.content = content;
-        test.imageURL = imageURL;
-        test.reward = point;
-        test.missionDate = MissionDate.newInstance(
+        Mission mission = new Mission();
+        mission.isLimitPerformerNaturalNumber(limitPerformer);
+        mission.title = title;
+        mission.content = content;
+        mission.imageURL = imageURL;
+        mission.reward = point;
+        mission.missionDate = MissionDate.newInstance(
                 recruitmentTimeStart,
                 recruitmentTimeEnd,
                 durationTimeStart,
                 durationTimeEnd
         );
-        test.limitPerformer = limitApply;
-        test.maker = maker;
-        maker.usePoint(point * limitApply);
-        test.createEntity();
-        return test;
+        mission.limitPerformer = limitPerformer;
+        mission.maker = maker;
+        maker.usePoint(point * limitPerformer);
+        mission.refreshMissionStatus();
+        mission.createEntity();
+        return mission;
     }
 
     /**
@@ -113,9 +114,7 @@ public class Mission extends BaseEntity {
             final LocalDate durationTimeStart,
             final LocalDate durationTimeEnd
     ) {
-        if (limitPerformer <= 0) {
-            throw new ApplyException("제한인원은 0보다 커야 합니다.");
-        }
+        isLimitPerformerNaturalNumber(limitPerformer);
         this.maker.updatePoint(reward * limitPerformer - this.reward * this.limitPerformer);
         this.title = title;
         this.content = content;
@@ -141,9 +140,7 @@ public class Mission extends BaseEntity {
             final LocalDate durationTimeStart,
             final LocalDate durationTimeEnd
     ) {
-        if (limitPerformer <= 0) {
-            throw new ApplyException("제한인원은 0보다 커야 합니다.");
-        }
+        isLimitPerformerNaturalNumber(limitPerformer);
         this.maker.updatePoint(reward * limitPerformer - this.reward * this.limitPerformer);
         this.title = title;
         this.content = content;
@@ -158,9 +155,18 @@ public class Mission extends BaseEntity {
         updateEntity();
     }
 
-    public long remainApplyTime() {
-        long remainTime = missionDate.remainApplyTime();
+    public long remainApplyDays(LocalDate currentDate) {
+        long remainTime = missionDate.remainApplyTime(currentDate);
         return remainTime;
+    }
+
+    /**
+     * 예외 처리 로직
+     */
+    private void isLimitPerformerNaturalNumber(int limitPerformer) {
+        if (limitPerformer <= 0) {
+            throw new NotNaturalNumberException(String.valueOf(limitPerformer));
+        }
     }
 
 }

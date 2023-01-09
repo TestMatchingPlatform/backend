@@ -1,12 +1,13 @@
 package io.wisoft.testermatchingplatform.domain;
 
-import io.wisoft.testermatchingplatform.handler.exception.CashException;
-import io.wisoft.testermatchingplatform.handler.exception.EmptyAccountException;
-import io.wisoft.testermatchingplatform.handler.exception.LoginException;
-import io.wisoft.testermatchingplatform.handler.exception.PointException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.EmptyAccountException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.MissMatchPasswordException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.NotNaturalNumberException;
+import io.wisoft.testermatchingplatform.handler.exception.domain.InsufficientPointException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ import java.util.UUID;
 public class Maker extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name="uuid2", strategy = "uuid2")
     @Column(name = "maker_id")
     private UUID id;
 
@@ -35,10 +37,10 @@ public class Maker extends BaseEntity {
     private String nickname;
 
     @Column(unique = true)
-    private String phone;
+    private String phoneNumber;
     private String company;
     private long point;
-    private String account;
+    private String accountNumber;
 
 
     /**
@@ -55,10 +57,10 @@ public class Maker extends BaseEntity {
         maker.email = email;
         maker.password = password;
         maker.nickname = nickname;
-        maker.phone = phone;
+        maker.phoneNumber = phone;
         maker.company = company;
         maker.point = 0L;
-        maker.account = "";
+        maker.accountNumber = "";
         maker.createEntity();
         return maker;
     }
@@ -68,83 +70,80 @@ public class Maker extends BaseEntity {
      * 비지니스 로직
      */
     // 넘겨받은 Email, Password 가 일치하는가?
-    public void checkPassword(String password) {
-        if (!this.password.equals(password)) {
-            throw new LoginException();
-        }
+    public void verifyPassword(String password) {
+        isValidPassword(password);
     }
 
     public String changeAccount(String account) {
-        this.account = account;
+        this.accountNumber = account;
         return account;
     }
 
     public long cashToPoint(long cash) {
-        checkCash(cash);
-        long point = mockCashToPoint(cash);
-        return point;
-    }
-
-    private long mockCashToPoint(long cash) {
-        System.out.println("현금 " + cash + "원을 Account 에서 빼갑니다!!");
+        isCashNaturalNumber(cash);
         this.point += cash;
         return cash;
     }
 
     public long pointToCash(long point) {
-        checkAccount();
-        checkPoint(point);
-        long cash = mockPointToCash(point);
-        return cash;
-    }
-
-    private void checkAccount() {
-        if (account == null) {
-            throw new EmptyAccountException();
-        }
-    }
-
-    private long mockPointToCash(long point) {
+        isAccountEmpty();
+        isPointNaturalNumber(point);
+        isEnoughPoint(point);
         long cash = point * 19 / 20;
-        if (this.point < point) {
-            throw new PointException();
-        }
-        System.out.println("계좌로 포인트 " + cash + "만큼 충전합니다.!!");
         this.point -= point;
         return cash;
     }
 
     public void usePoint(long point) {
-        checkPoint(point);
-        checkInsufficientPoint(point);
+        isPointNaturalNumber(point);
+        isEnoughPoint(point);
         this.point -= point;
     }
 
     public void refundPoint(long point) {
-        checkPoint(point);
+        isPointNaturalNumber(point);
         this.point += point;
     }
 
-    private void checkPoint(long point) {
-        if (point <= 0) {
-            throw new PointException("음수와 0은 들어갈 수 없습니다.");
-        }
-    }
 
-    private void checkInsufficientPoint(long point) {
-        if (this.point - point < 0) {
-            throw new PointException();
-        }
-    }
-
-    private void checkCash(long cash) {
-        if (cash <= 0) {
-            throw new CashException("음수와 0은 들어갈 수 없습니다.");
-        }
-    }
 
     public void updatePoint(long point) {
-        checkInsufficientPoint(point);
+        isEnoughPoint(point);
         this.point -= point;
     }
+
+    /**
+     * 예외 처리 로직
+     */
+    private void isAccountEmpty() {
+        if (accountNumber == null) {
+            throw new EmptyAccountException();
+        }
+    }
+
+    private void isPointNaturalNumber(long point) {
+        if (point <= 0) {
+            throw new NotNaturalNumberException(String.valueOf(point));
+        }
+    }
+
+    private void isEnoughPoint(long point) {
+        if (this.point < point) {
+            throw new InsufficientPointException(String.valueOf(point - this.point));
+        }
+    }
+
+    private void isCashNaturalNumber(long cash) {
+        if (cash <= 0) {
+            throw new NotNaturalNumberException(String.valueOf(cash));
+        }
+    }
+
+    private void isValidPassword(String password) {
+        if (!this.password.equals(password)) {
+            throw new MissMatchPasswordException(password);
+        }
+    }
+
+
 }

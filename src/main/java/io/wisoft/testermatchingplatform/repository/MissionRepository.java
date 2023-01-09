@@ -1,115 +1,92 @@
 package io.wisoft.testermatchingplatform.repository;
 
 import io.wisoft.testermatchingplatform.domain.Mission;
-import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
-@RequiredArgsConstructor
-public class MissionRepository {
-
-    private final EntityManager em;
-
-    public UUID save(Mission test) {
-        em.persist(test);
-        return test.getId();
-    }
-
-    public Mission findById(UUID id) {
-        return em.find(Mission.class, id);
-    }
-
-    public List<Mission> findAll() {
-        return em.createQuery("select m from Mission m", Mission.class)
-                .getResultList();
-    }
-
-    public List<Mission> findApplyMissions() {
-        LocalDate currentDate = LocalDate.now();
-        String jpql = "select m from Mission m where m.applyInformationList >= :currentDate";
-        return em.createQuery(jpql, Mission.class)
-                .setParameter("currentDate", currentDate)
-                .getResultList();
-    }
-
-    public List<Mission> findAppliedMissionsByTesterId(UUID testerId) {
-        LocalDate currentDate = LocalDate.now();
-        String jpql = "select distinct m " +
-                "from Mission m " +
-                "join m.applyInformationList a join a.tester te " +
-                "where m.applyInformationList >= :currentDate and te.id = :testerId";
-        return em.createQuery(
-                        jpql,
-                        Mission.class)
-                .setParameter("currentDate", currentDate)
-                .setParameter("testerId", testerId)
-                .getResultList();
-    }
-
-    public List<Mission> findApplyMissionsExceptTesterId(UUID testerId) {
-        LocalDate currentDate = LocalDate.now();
-        String jpql = "select distinct m from Mission m join m.applyInformationList a join a.tester te where m.applyInformationList >= :currentDate and te.id <> :testerId";
-        return em.createQuery(jpql, Mission.class)
-                .setParameter("testerId", testerId)
-                .setParameter("currentDate", currentDate)
-                .getResultList();
-    }
-
-    public List<Mission> findApplyMissionsExceptTesterIdByCreated(UUID testerId) {
-        LocalDate currentDate = LocalDate.now();
-        String jpql = "select distinct m from Mission m join m.applyInformationList a join a.tester te where m.applyInformationList >= :currentDate and te.id <> :testerId order by m.createDateTime";
-        return em.createQuery(jpql, Mission.class)
-                .setParameter("testerId", testerId)
-                .setParameter("currentDate", currentDate)
-                .getResultList();
-    }
-
-    public List<Mission> findApplyMissionsExceptTesterIdByPopular(UUID testerId) {
-        LocalDate currentDate = LocalDate.now();
-        // 가능한지 Test 필요
-        String jpql = "select distinct m from Mission m join m.applyInformationList a join a.tester te where m.applyInformationList >= :currentDate and te.id <> :testerId order by count(m)";
-        return em.createQuery(jpql, Mission.class)
-                .setParameter("testerId", testerId)
-                .setParameter("currentDate", currentDate)
-                .getResultList();
-
-    }
-
-    public List<Mission> findApplyMissionsExceptTesterIdByDeadLine(UUID testerId) {
-        LocalDate currentDate = LocalDate.now();
-        // 가능한지 Test 필요
-        String jpql = "select distinct m from Mission m join m.applyInformationList a join a.tester te where m.applyInformationList >= :currentDate and te.id <> :testerId";
-        List<Mission> resultList = em.createQuery(jpql, Mission.class)
-                .setParameter("testerId", testerId)
-                .setParameter("currentDate", currentDate)
-                .getResultList();
-
-        resultList.sort(Comparator.comparingInt(o -> o.getApplyInformationList().size()));
-        return resultList;
-    }
-
-    public List<Mission> findAppliedMissionsByMakerId(UUID makerId) {
-        String jpql = "select m from Mission m join m.maker ma where m.id = :makerId";
-        List<Mission> resultList = em.createQuery(jpql, Mission.class)
-                .setParameter("makerId", makerId)
-                .getResultList();
-        return resultList;
-    }
+public interface MissionRepository extends JpaRepository<Mission, UUID>, MissionCustomRepository {
 
 
-//    public List<Tests> findPopularTop4() {
-//        String jpql = "select t from Tests t join ApplyInformation a where t.testDate.recruitmentTimeEndgroup by t.id order by count(a)";
-//        return em.createQuery(jpql, Tests.class)
-//                .setFirstResult(0)
-//                .setMaxResults(4)
-//                .getResultList();
-//
-//    }
+    @Override
+    Optional<Mission> findById(UUID uuid);
+
+    @Override
+    List<Mission> findAll();
+
+    @Query("select m from Mission m where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate")
+    List<Mission> findApplyMissions(@Param("currentDate") LocalDate currentDate);
+
+    // 만들었는데 사용하지를 않음
+//    @Query("select distinct m "+
+//            "from Mission m "+
+//            "join m.applyInformationList a join a.tester te " +
+//            "where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate and te.id = :testerId")
+//    List<Mission> findAppliedMissionsByTesterId(
+//            @Param("testerId") UUID testerId,
+//            @Param("currentDate") LocalDate currentDate
+//    );
+
+    @Query("select m " +
+            "from Mission m " +
+            "where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate " +
+            "and m <> (select m from Mission m join m.applyInformationList a join a.tester te where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate and te.id = :testerId)")
+    List<Mission> findApplyMissionsExceptTesterId(
+            @Param("testerId") UUID testerId,
+            @Param("currentDate") LocalDate currentDate
+    );
+
+
+    @Query("select m " +
+            "from Mission m " +
+            "where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate " +
+            "and m <> (select m from Mission m join m.applyInformationList a join a.tester te where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate and te.id = :testerId) " +
+            "order by m.createDateTime")
+    List<Mission> findApplyMissionsExceptTesterIdByCreated(
+            @Param("testerId") UUID testerId,
+            @Param("currentDate") LocalDate currentDate
+    );
+
+    @Query("select m " +
+            "from Mission m " +
+            "where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate " +
+            "and m <> (select m from Mission m join m.applyInformationList a join a.tester te where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate and te.id = :testerId) " +
+            "order by m.applyInformationList.size desc")
+    List<Mission> findApplyMissionsExceptTesterIdByPopular(
+            @Param("testerId") UUID testerId,
+            @Param("currentDate") LocalDate currentDate
+    );
+
+
+    @Query("select m " +
+            "from Mission m " +
+            "where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate " +
+            "and m <> (select m from Mission m join m.applyInformationList a join a.tester te where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.recruitmentTimeEnd >= :currentDate and te.id = :testerId) " +
+            "order by m.missionDate.recruitmentTimeEnd-:currentDate")
+    List<Mission> findApplyMissionsExceptTesterIdByDeadLine(
+            @Param("testerId") UUID testerId,
+            @Param("currentDate") LocalDate currentDate
+    );
+
+    @Query("select m from Mission m join m.maker ma where ma.id = :makerId")
+    List<Mission> findAppliedMissionsByMakerId(
+            @Param("makerId") UUID makerId
+    );
+
+    @Query("select count(m) from Mission m where m.missionDate.recruitmentTimeStart <= :currentDate and m.missionDate.durationTimeEnd >= :currentDate")
+    long findProgressMission(
+            @Param("currentDate") LocalDate currentDate
+    );
+
+    @Query("select count(m) from Mission m where m.missionDate.durationTimeEnd < :currentDate")
+    long findCompleteMission(
+            @Param("currentDate") LocalDate currentDate
+    );
+
 
 }

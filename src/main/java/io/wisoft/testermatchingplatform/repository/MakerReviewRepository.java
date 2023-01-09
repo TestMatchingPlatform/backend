@@ -1,31 +1,20 @@
 package io.wisoft.testermatchingplatform.repository;
 
 import io.wisoft.testermatchingplatform.domain.MakerReview;
-import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@RequiredArgsConstructor
-public class MakerReviewRepository {
-    private final EntityManager em;
+public interface MakerReviewRepository extends JpaRepository<MakerReview, UUID> {
 
-    public UUID save(MakerReview makerReview) {
-        em.persist(makerReview);
-        return makerReview.getId();
-    }
+    @Override
+    Optional<MakerReview> findById(UUID uuid);
 
-    public MakerReview findOne(UUID id) {
-        return em.find(MakerReview.class, id);
-    }
+    @Override
+    List<MakerReview> findAll();
 
-    public List<MakerReview> findAll(UUID id) {
-        return em.createQuery(
-                "select mr from MakerReview mr",
-                MakerReview.class
-        ).getResultList();
-    }
 }
