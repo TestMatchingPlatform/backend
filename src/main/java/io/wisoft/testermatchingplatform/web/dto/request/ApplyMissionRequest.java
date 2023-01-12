@@ -5,14 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccountRequest {
-    private String account;
+public class ApplyMissionRequest {
+    private UUID missionId;
 
-    public static AccountRequest newInstance(String account) {
-        AccountRequest request = new AccountRequest();
-        request.account = account;
+    public static ApplyMissionRequest newInstance(final UUID missionId) {
+        ApplyMissionRequest request = new ApplyMissionRequest();
+        request.missionId = missionId;
         return request;
     }
 }

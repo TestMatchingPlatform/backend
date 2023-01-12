@@ -4,23 +4,21 @@ import io.wisoft.testermatchingplatform.domain.ApplyInformation;
 import io.wisoft.testermatchingplatform.domain.MakerReview;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateMakerReviewListRequest {
-    private final UUID applyInformationId;
-    private final int starPoint;
-    private final String comment;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class CreateMakerReviewRequest {
+    private int starPoint;
+    private String comment;
 
-    public static CreateMakerReviewListRequest newInstance(UUID applyInformationId, int starPoint, String testComment) {
-        CreateMakerReviewListRequest request = new CreateMakerReviewListRequest(
-                applyInformationId,
-                starPoint,
-                testComment
-        );
+    public static CreateMakerReviewRequest newInstance(UUID applyInformationId, int starPoint, String testComment) {
+        CreateMakerReviewRequest request = new CreateMakerReviewRequest();
+        request.starPoint = starPoint;
+        request.comment = testComment;
 
         return request;
     }
