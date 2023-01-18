@@ -1,16 +1,11 @@
 package io.wisoft.testermatchingplatform.repository;
 
 import io.wisoft.testermatchingplatform.domain.ApplyInformation;
-import io.wisoft.testermatchingplatform.handler.exception.service.ApplyInformationNotDeleteException;
-import io.wisoft.testermatchingplatform.handler.exception.service.ApplyInformationNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,4 +29,9 @@ public interface ApplyInformationRepository extends JpaRepository<ApplyInformati
 
     void deleteApplyInformationByTesterIdAndMissionId(UUID testerId, UUID missionId);
 
+    @Query("select count(a) from ApplyInformation a join a.mission m where m.id = :missionId and a.approveTime is not null")
+    long existsApplyInformationByMissionIdAndApproveTimeIsNull(@Param("missionId") UUID missionId);
+
+    @Query("select count(a) from ApplyInformation a join a.mission m where m.id = :missionId and a.executionTime is not null")
+    long existsApplyInformationByMissionIdAndExecutionTimeIsNull(@Param("missionId")UUID missionId);
 }

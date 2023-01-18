@@ -3,9 +3,7 @@ package io.wisoft.testermatchingplatform.service;
 import io.wisoft.testermatchingplatform.domain.ApplyInformation;
 import io.wisoft.testermatchingplatform.domain.Mission;
 import io.wisoft.testermatchingplatform.domain.Tester;
-import io.wisoft.testermatchingplatform.handler.exception.service.ApplyInformationNotFoundException;
-import io.wisoft.testermatchingplatform.handler.exception.service.MissionNotFoundException;
-import io.wisoft.testermatchingplatform.handler.exception.service.TesterNotFoundException;
+import io.wisoft.testermatchingplatform.handler.exception.service.*;
 import io.wisoft.testermatchingplatform.repository.ApplyInformationRepository;
 import io.wisoft.testermatchingplatform.repository.MakerRepository;
 import io.wisoft.testermatchingplatform.repository.MissionRepository;
@@ -74,12 +72,16 @@ public class ApplyInformationService {
         Mission mission = missionRepository.findById(missionId).orElseThrow(
                 () -> new MissionNotFoundException("id: " + missionId + " not found")
         );
+        if (applyInformationRepository.existsApplyInformationByMissionIdAndApproveTimeIsNull(missionId) > 0) {
+            throw new ApplyInformationOverlapException("mission id: "+ missionId +" approve overlap.");
+        }
+
         List<ApplyInformation> applyInformationList = mission.getApplyInformationList();
         List<ApplyInformation> responseList = new ArrayList<>();
 
         HashSet<UUID> set = new HashSet<>(request.getApproveTesterIdList());
         for (ApplyInformation applyInformation : applyInformationList) {
-            if (set.contains(applyInformation.getId())) {
+            if (set.contains(applyInformation.getTester().getId())) {
                 applyInformation.applyApprove();
                 responseList.add(applyInformation);
             } else {
@@ -96,12 +98,16 @@ public class ApplyInformationService {
         Mission mission = missionRepository.findById(missionId).orElseThrow(
                 () -> new MissionNotFoundException("id: " + missionId + " not found")
         );
+
+        if (applyInformationRepository.existsApplyInformationByMissionIdAndExecutionTimeIsNull(missionId) != 0) {
+            throw new ApplyInformationOverlapException("mission id: "+ missionId +" execute overlap.");
+        }
         List<ApplyInformation> applyInformationList = mission.getApplyInformationList();
         List<ApplyInformation> responseList = new ArrayList<>();
 
         HashSet<UUID> set = new HashSet<>(request.getApproveTestIdList());
         for (ApplyInformation applyInformation : applyInformationList) {
-            if (set.contains(applyInformation.getId())) {
+            if (set.contains(applyInformation.getTester().getId())) {
                 applyInformation.executeApprove();
                 responseList.add(applyInformation);
             } else {
