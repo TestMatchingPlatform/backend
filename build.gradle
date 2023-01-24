@@ -5,7 +5,7 @@ buildscript {
 }
 
 jar {
-    enable = false
+    enabled = false
 }
 
 plugins {
