@@ -38,7 +38,7 @@ BM을 이용해서
 
 개요와 더 자세한 내용은 노션에서 확인하실 수 있습니다.
 
-[Notion으로 정리한 개요 문서](https://www.notion.so/kukjun/6378aad79254427b9b95f8a842eb17bc)
+[Notion으로 정리한 프로젝트 문서](https://www.notion.so/kukjun/Test-Matching-Platform-03c928a96ebc4a50a8ef62158a73f3ae)
 
 <br>
 
