@@ -1,7 +1,6 @@
 # Tester Matching Platform - Backend
 
 <br>
-<br>
 
 ## 소개
 
