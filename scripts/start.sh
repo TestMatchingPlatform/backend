@@ -4,9 +4,9 @@ PROJECT_ROOT=/home/ec2-user/auto_deploy/app
 BUILD_ROOT=/home/ec2-user/auto_deploy/build
 BUILD_JAR_FILE=$BUILD_ROOT/spring-webapp.jar
 
-APP_LOG="$BUILD_JAR_FILE/application.log"
-ERROR_LOG="$BUILD_JAR_FILE/error.log"
-DEPLOY_LOG="#$BUILD_JAR_FILE/deploy.log"
+APP_LOG="$BUILD_ROOT/application.log"
+ERROR_LOG="$BUILD_ROOT/error.log"
+DEPLOY_LOG="#$BUILD_ROOT/deploy.log"
 
 TIME_NOW=$(date +%c)
 
@@ -17,7 +17,7 @@ cp $PROJECT_ROOT/build/libs/*.jar $BUILD_JAR_FILE
 # jar file 실행
 echo "> 새 애플리케이션 배포"
 echo "$TIME_NOW > $BUILD_JAR_FILE 파일 실행" >> $DEPLOY_LOG
-nohup java -jar -Dspring.config.location=classpath:/application.yml,$BUILD_ROOT/application-prod.yml $BUILD_JAR_NAME > $APP_LOG 2> &ERROR_LOG &
+nohup java -jar -Dspring.config.location=classpath:/application.yml,$BUILD_ROOT/application-prod.yml $BUILD_JAR_NAME > $APP_LOG 2> $ERROR_LOG &
 
 # 실행된 프로세스 확인
 CURRENT_PID=$(pgrep -f $BUILD_JAR_FILE)
