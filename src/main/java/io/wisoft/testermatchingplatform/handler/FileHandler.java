@@ -45,8 +45,10 @@ public class FileHandler {
         try {
             final File file = new File(DEFAULT_TEST_REPRESENTATION_IMAGE_FILE_PATH + fileName);
 
+
             return Files.readAllBytes(file.toPath());
         } catch (NoSuchFileException e) {
+            System.err.println(DEFAULT_TEST_REPRESENTATION_IMAGE_FILE_PATH);
             System.err.println("No file " + fileName);
             throw new IllegalArgumentException("존재하지 않는 파일명입니다.");
         } catch (IOException e) {
