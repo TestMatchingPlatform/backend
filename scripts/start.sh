@@ -17,7 +17,7 @@ cp $PROJECT_ROOT/build/libs/*.jar $BUILD_JAR_FILE
 # jar file 실행
 echo "> 새 애플리케이션 배포"
 echo "$TIME_NOW > $BUILD_JAR_FILE 파일 실행" >> $DEPLOY_LOG
-nohup java -jar -Dspring.config.location=classpath:/application.yml,$BUILD_ROOT/application-prod.yml $BUILD_JAR_NAME > $APP_LOG 2> $ERROR_LOG &
+nohup java -jar -Dspring.config.location=classpath:/application.yml,$BUILD_ROOT/application-prod.yml $BUILD_JAR_FILE > $APP_LOG 2> $ERROR_LOG &
 
 # 실행된 프로세스 확인
 CURRENT_PID=$(pgrep -f $BUILD_JAR_FILE)
