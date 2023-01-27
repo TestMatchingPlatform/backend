@@ -17,11 +17,9 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-src/main/resources/application.yml
+src/main/resources/application-prod.yml
 src/main/resources/application-dev.yml
-src/main/resources/application-dev-jpa.yml
-src/main/resources/application-prod-db.yml
-src/main/resources/application-prod-jpa.yml
+src/test/resources/application-test.yml
 
 .idea
 *.iws

@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  datasource:
+    hikari:
+      maximum-pool-size: 4
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+  profiles:
+    active: dev
+    group:
+      dev:
+        - dev
+      prod:
+        - prod
+
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.type: trace

@@ -1,0 +1,18 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+  profiles:
+    active: test
+    group:
+      test:
+        - test
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
