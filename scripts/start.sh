@@ -6,7 +6,7 @@ BUILD_JAR_FILE=$BUILD_ROOT/spring-webapp.jar
 
 APP_LOG="$BUILD_ROOT/application.log"
 ERROR_LOG="$BUILD_ROOT/error.log"
-DEPLOY_LOG="#$BUILD_ROOT/deploy.log"
+DEPLOY_LOG="$BUILD_ROOT/deploy.log"
 
 TIME_NOW=$(date +%c)
 
